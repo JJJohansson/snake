@@ -6,8 +6,9 @@
     - steer the snake (DONE)
     - handle border collision (DONE)
     - make the snake move on itself (DONE)
+    - add food on random spot (DONE)
+      - make sure that the food does not spawn on the snake
     - handle snake colliding with itself
-    - add food on random spot
     - make the snake longer after eating food
       - food reappears after eating
     - game winning/losing conditions
@@ -18,7 +19,29 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 let snake = [{x:225,y:225}, {x:250,y:225}, {x:275,y:225}, {x:300,y:225}];
+let food = {};
 let direction = 'left';
+let gameStarted = false;
+
+function startGame() {
+    drawSnake();
+    setInterval(() => move(), 400);
+
+    document.getElementById("canvas").focus();
+}
+
+function spawnFood() {
+    const x_axis = Math.round(Math.floor(Math.random() * canvas.width) / 25) * 25;
+    const y_axis = Math.round(Math.floor(Math.random() * canvas.height) / 25) * 25;
+    food = {x:x_axis, y:y_axis};
+    ctx.fillStyle = '#DC143C';
+    ctx.strokestyle = '#DDA0DD';
+    ctx.fillRect(food.x, food.y, 25, 25);
+    ctx.strokeRect(food.x, food.y, 25, 25);
+
+    console.log(food);
+}
+spawnFood();
 
 function drawSnake() {
     for (const trail of snake) {
@@ -28,7 +51,6 @@ function drawSnake() {
         ctx.strokeRect(trail.x, trail.y, 25, 25);
     }
 }
-drawSnake();
 
 function clear() {
     ctx.fillStyle = "#eeeeee";
@@ -37,9 +59,7 @@ function clear() {
     ctx.strokeRect(0, 0, canvas.width, canvas.height);
 }
 
-window.addEventListener('keydown', (event) => changeDirection(event));
-
-setInterval(() => move(), 400);
+window.addEventListener('keydown', (event) => handleKeyPress(event));
 
 function move() {
     switch(direction) {
@@ -82,7 +102,8 @@ function move() {
     }
 }
 
-function changeDirection(event) {
+function handleKeyPress(event) {
+    console.log(event)
     switch(event.key) {
         case 'ArrowUp':
             if (direction === 'up' || direction === 'down') break;
@@ -102,6 +123,12 @@ function changeDirection(event) {
         case 'ArrowRight':
             if (direction === 'left' || direction === 'right') break;
             direction = 'right';
+            break;
+
+        case 'Enter':
+            if (gameStarted) break;
+            startGame();
+            gameStarted = true;
             break;
 
         default:
