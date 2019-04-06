@@ -4,6 +4,10 @@
     box-sizing: border-box;
   }
   
+  h2 {
+    margin-left: 5px;
+  }
+
   body {
     display: flex;
     justify-content: center;
