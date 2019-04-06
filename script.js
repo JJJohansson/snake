@@ -18,12 +18,16 @@
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+ctx.font = "25px Arial";
+ctx.fillText("Press enter to start the game!", 90, 225); 
+
 let snake = [{x:225,y:225}, {x:250,y:225}, {x:275,y:225}, {x:300,y:225}];
 let food = {};
 let direction = 'left';
 let gameStarted = false;
 
 function startGame() {
+    spawnFood();
     drawSnake();
     setInterval(() => move(), 400);
 
@@ -34,14 +38,16 @@ function spawnFood() {
     const x_axis = Math.round(Math.floor(Math.random() * canvas.width) / 25) * 25;
     const y_axis = Math.round(Math.floor(Math.random() * canvas.height) / 25) * 25;
     food = {x:x_axis, y:y_axis};
+    drawFood();
+    console.log(food);
+}
+
+function drawFood() {
     ctx.fillStyle = '#DC143C';
     ctx.strokestyle = '#DDA0DD';
     ctx.fillRect(food.x, food.y, 25, 25);
     ctx.strokeRect(food.x, food.y, 25, 25);
-
-    console.log(food);
 }
-spawnFood();
 
 function drawSnake() {
     for (const trail of snake) {
@@ -69,6 +75,7 @@ function move() {
             snake.pop();
             clear();
             drawSnake();
+            drawFood();
             break;
 
         case 'down':
@@ -77,6 +84,7 @@ function move() {
             snake.pop();
             clear();
             drawSnake();
+            drawFood();
             break;
 
         case 'left':
@@ -86,6 +94,7 @@ function move() {
             snake.pop();
             clear();
             drawSnake();
+            drawFood();
             break;
 
         case 'right':
@@ -95,6 +104,7 @@ function move() {
             snake.pop();
             clear();
             drawSnake();
+            drawFood();
             break;
 
         default:
