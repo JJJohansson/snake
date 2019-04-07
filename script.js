@@ -16,15 +16,15 @@
     - UI?
 
     FIXES:
-    - bug with the snake able to turn 180 degrees
+    - bug with the snake able to turn 180 degrees (DONE)
 */
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
-ctx.font = "25px Arial";
-ctx.fillText("Press [ENTER] to start the game!", 70, 200);
-ctx.font = "20px Arial"; 
-ctx.fillText("Press [SPACE] to pause the game!", 72, 240); 
+ctx.font = "20px Arial";
+ctx.fillText("[ENTER] - start the game", 60, 200);
+ctx.fillText("[SPACE] - pause the game", 60, 240); 
+ctx.fillText("[UP, DOWN, LEFT, RIGHT] - steer the snake", 60, 280); 
 window.addEventListener('keydown', (event) => handleKeyPress(event));
 
 let snake = null;
@@ -35,10 +35,13 @@ let gameStarted = false;
 let gameOver = false;
 let gamePaused = false;
 var game = null;
+let tick = 0;
+let movementAt = null;
 
 function startGame() {
     snake = [{x:225, y:225}, {x:250, y:225}, {x:275, y:225}, {x:300, y:225}];
     score = 0;
+    ticks = 0;
     direction = 'left';
     gameOver = false;
     gameStarted = true;
@@ -56,8 +59,9 @@ function pauseGame() {
         gamePaused = false;
     } else {
         ctx.fillStyle = '#000000';
-        ctx.font = "50px Arial";
-        ctx.fillText("Game paused!", 90, 225); 
+        ctx.font = "25px Arial";
+        ctx.fillText("Game paused!", 90, 180); 
+        ctx.fillText("Press [SPACE] to continue", 90, 210); 
         clearInterval(game);
         gamePaused = true;
     }
@@ -194,26 +198,31 @@ function move() {
             break;
     }
     eatFood();
+    tick++;
 }
 
 function handleKeyPress(event) {
     switch(event.key) {
         case 'ArrowUp':
+            if (movementAt === tick) break;
             if (direction === 'up' || direction === 'down') break;
             direction = 'up';
             break;
 
         case 'ArrowDown':
+            if (movementAt === tick) break;
             if (direction === 'up' || direction === 'down') break;
             direction = 'down';
             break;
 
         case 'ArrowLeft':
+            if (movementAt === tick) break;
             if (direction === 'left' || direction === 'right') break;
             direction = 'left';
             break;
 
         case 'ArrowRight':
+            if (movementAt === tick) break;
             if (direction === 'left' || direction === 'right') break;
             direction = 'right';
             break;
@@ -232,4 +241,5 @@ function handleKeyPress(event) {
         default:
             break;
     }
+    movementAt = tick;
 }
