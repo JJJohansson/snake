@@ -8,28 +8,40 @@
     - make the snake move on itself (DONE)
     - add food on random spot (DONE)
       - make sure that the food does not spawn on the snake (DONE)
-    - handle snake colliding with itself
+    - handle snake colliding with itself (DONE)
     - make the snake longer after eating food (DONE)
       - food reappears after eating (DONE)
-    - game winning/losing conditions
-    - score system
+    - game winning/losing conditions (DONE)
+    - score system (DONE)
     - UI?
+
+    FIXES:
+    - bug with the snake able to turn 180 degrees
 */
 
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
 ctx.font = "25px Arial";
-ctx.fillText("Press [ENTER] to start the game!", 70, 225); 
+ctx.fillText("Press [ENTER] to start the game!", 70, 200);
+ctx.font = "20px Arial"; 
+ctx.fillText("Press [SPACE] to pause the game!", 72, 240); 
 window.addEventListener('keydown', (event) => handleKeyPress(event));
 
-let snake = [{x:225, y:225}, {x:250, y:225}, {x:275, y:225}, {x:300, y:225}];
+let snake = null;
 let food = {};
-let direction = 'left';
+let score = null;
+let direction = null;
 let gameStarted = false;
+let gameOver = false;
 let gamePaused = false;
 var game = null;
 
 function startGame() {
+    snake = [{x:225, y:225}, {x:250, y:225}, {x:275, y:225}, {x:300, y:225}];
+    score = 0;
+    direction = 'left';
+    gameOver = false;
+    gameStarted = true;
     clear();
     placeFood();
     drawSnake();
@@ -51,9 +63,38 @@ function pauseGame() {
     }
 }
 
+function endGame() {
+    ctx.fillStyle = '#000000';
+    ctx.font = "50px Arial";
+    ctx.fillText("Game over!", 110, 200); 
+    ctx.fillText(`Score: ${score}`, 110, 250); 
+    ctx.font = "25px Arial";
+    ctx.fillText(`Press [ENTER] to start again!`, 110, 290); 
+    clearInterval(game);
+    gameOver = true;
+}
+
+// i guess i'll add this here even though it's nearly impossible
+function winGame() {
+    ctx.fillStyle = '#000000';
+    ctx.font = "50px Arial";
+    ctx.fillText("You.. won?", 110, 200); 
+    ctx.font = "30px Arial";
+    ctx.fillText("Oh my god..", 120, 235); 
+    ctx.font = "25px Arial";
+    ctx.fillText(`Press [ENTER] to start again..`, 110, 290); 
+    clearInterval(game);
+    gameOver = true;
+}
+
 function draw() {
     drawFood();
     drawSnake();
+    for (let i = 1; i < snake.length; i++) {
+        if (snake[0].x == snake[i].x && snake[0].y == snake[i].y) {
+            endGame();
+        }
+    }
 }
 
 function drawFood() {
@@ -84,14 +125,11 @@ function placeFood() {
     const y_axis = Math.round(Math.floor(Math.random() * (canvas.height-25)) / 25) * 25;
     for (const trail of snake) {
         if (x_axis === trail.x && y_axis === trail.y) {
-            console.log(`x_axis: ${x_axis}, y_axis:${y_axis}`);
-            console.log('food on snake! RESETTING!');
             placeFood();
             return;
         }
     }
     food = {x:x_axis, y:y_axis};
-    console.log('food placed at ', food);
     drawFood();
 }
 
@@ -99,15 +137,18 @@ function eatFood() {
     if (snake[0].x === food.x && snake[0].y === food.y) {
         snake.push({x:food.x, y:food.y});
         drawSnake();
-        console.log('nom nom nom');
         placeFood();
+        score++;
     } 
 }
 
 function move() {
     switch(direction) {
         case 'up':
-            if (snake[0].y === 0) break;
+            if (snake[0].y === 0) {
+                endGame();
+                break;
+            }
             snake.unshift({x:snake[0].x, y:snake[0].y-25});
             snake.pop();
             clear();
@@ -115,7 +156,10 @@ function move() {
             break;
 
         case 'down':
-            if (snake[0].y === 475) break;
+            if (snake[0].y === 475) {
+                endGame();
+                break;
+            }
             snake.unshift({x:snake[0].x, y:snake[0].y+25});
             snake.pop();
             clear();
@@ -124,7 +168,10 @@ function move() {
 
         case 'left':
             direction = 'left';
-            if (snake[0].x === 0) break;
+            if (snake[0].x === 0) {
+                endGame();
+                break;
+            }
             snake.unshift({x:snake[0].x-25, y:snake[0].y});
             snake.pop();
             clear();
@@ -133,7 +180,10 @@ function move() {
 
         case 'right':
             direction = 'right';
-            if (snake[0].x === 475) break;
+            if (snake[0].x === 475) {
+                endGame();
+                break;
+            }
             snake.unshift({x:snake[0].x+25, y:snake[0].y});
             snake.pop();
             clear();
@@ -169,10 +219,11 @@ function handleKeyPress(event) {
             break;
 
         case 'Enter':
-            if (gameStarted) break;
-            startGame();
-            gameStarted = true;
-            break;
+            if (!gameStarted || gameOver) {
+                startGame();
+                gameStarted = true;
+                break;
+            }
 
         case ' ':
             if (gameStarted) pauseGame();
