@@ -13,6 +13,8 @@
       - food reappears after eating (DONE)
     - game winning/losing conditions (DONE)
     - score system (DONE)
+    - make the snake faster after certain point limit?
+    - make the snake appear on the opposite side when hitting the border?
     - UI?
 
     FIXES:
@@ -143,6 +145,7 @@ function eatFood() {
         drawSnake();
         placeFood();
         score++;
+        document.getElementById("score").innerText = `Score: ${score}`;
     } 
 }
 
@@ -235,6 +238,7 @@ function handleKeyPress(event) {
             }
 
         case ' ':
+            if (gameOver) break;
             if (gameStarted) pauseGame();
             break;
 
